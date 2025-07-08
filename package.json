@@ -6,8 +6,5 @@
     "dotenv": "^16.4.5",
     "@thirdweb-dev/sdk": "^4.0.0",
     "ethers": "^5.7.2"
-  },
-  "scripts": {
-    "start": "node api/mint.js"
   }
 }
