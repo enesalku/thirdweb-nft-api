@@ -2,44 +2,32 @@
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { ethers } from "ethers";
 
-/**
- * Thirdweb SDK’yi, .env’de tanımlı PRIVATE_KEY ve Polygon RPC ile başlatıyoruz.
- * Vercel bu dosyayı serverless (Edge) fonksiyon olarak çalıştıracak.
- */
+// 1) Private key'i güvenle al → trim ile gizli boşlukları at
+const PRIVATE_KEY = (process.env.PRIVATE_KEY || "").trim();
+
+// ► DEBUG: uzunluğu 66 mı?
+console.log("PK length:", PRIVATE_KEY.length);   // 66 görmelisin
+
+// 2) SDK'yı başlat
 const sdk = new ThirdwebSDK(
   new ethers.Wallet(
-    process.env.PRIVATE_KEY,
+    PRIVATE_KEY,
     ethers.getDefaultProvider("https://polygon-rpc.com")
   )
 );
 
-/**
- * Serverless handler –  sadece POST isteklerini kabul eder
- * Body: { wallet, image, name, description }
- */
+/* … geri kalan kod aynı … */
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
+  if (req.method !== "POST") return res.status(405).json({ error: "Only POST allowed" });
   try {
     const { wallet, image, name, description } = req.body;
+    if (!wallet || !image) return res.status(400).json({ error: "wallet & image required" });
 
-    // Koleksiyon adresi .env’de: NFT_CONTRACT_ADDRESS
     const contract = await sdk.getContract(process.env.NFT_CONTRACT_ADDRESS);
-
-    // Mint işlemi
-    const tx = await contract.erc721.mintTo(wallet, {
-      name,
-      description,
-      image
-    });
-
-    // Başarılı yanıt
+    const tx = await contract.erc721.mintTo(wallet, { name, description, image });
     return res.status(200).json({ success: true, tx });
   } catch (err) {
-    // Hata yakalama
+    console.error(err);                // Vercel log'unda ayrıntı gör
     return res.status(500).json({ error: err.message });
   }
 }
-
