@@ -1,19 +1,23 @@
-// api/mint.js
 import { ThirdwebSDK } from "@thirdweb-dev/sdk";
 import { ethers } from "ethers";
 
 const PRIVATE_KEY = (process.env.PRIVATE_KEY || "").trim();
 const SECRET_KEY  = (process.env.THIRDWEB_SECRET_KEY || "").trim();
+const CLIENT_ID   = (process.env.THIRDWEB_CLIENT_ID || "").trim();
 
-console.log("PK length:", PRIVATE_KEY.length); // 66
-console.log("SK length:", SECRET_KEY.length);  // >0 olmalı
+console.log("PK:", PRIVATE_KEY.length); // 66
+console.log("SK:", SECRET_KEY.length);  // 40–50
+console.log("CID:", CLIENT_ID.length);  // 32
 
 const sdk = new ThirdwebSDK(
   new ethers.Wallet(
     PRIVATE_KEY,
-    ethers.getDefaultProvider("https://polygon-rpc.com") // Mumbai testnet istiyorsan değiştir
+    ethers.getDefaultProvider("https://polygon-rpc.com")
   ),
-  { secretKey: SECRET_KEY }        // <-- sadece bu parametre yeterli
+  {
+    secretKey: SECRET_KEY,   // zorunlu (server-side)
+    clientId : CLIENT_ID     // x-client-id başlığı için
+  }
 );
 
 export default async function handler(req, res) {
