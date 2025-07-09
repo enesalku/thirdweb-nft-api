@@ -1,9 +1,9 @@
 {
   "version": 2,
   "functions": {
-    "api/mint.js": {
-      "runtime": "nodejs18.x",
-      "memory": 1024
+    "api/*.js": {
+      "runtime": "nodejs18.x"
     }
   }
 }
+
